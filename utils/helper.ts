@@ -1,0 +1,65 @@
+export const timeToArea = (
+  startTime: number,
+  endTime: number,
+  upperBound: number,
+  lowerBound: number
+) => {
+  /*
+    TODO: consider the screen size (maybe query the device), 
+    the area response to total available time (e.g.: total available is 6 hour, task time takes 3 hours, then the object should have approximately 1/2 area of the container's white space)
+    */
+
+  return;
+};
+
+export const calculateCurrentTimeYPosition = (
+  upperBoundTime: number,
+  lowerBoundTime: number,
+  currentTimeMinutes: number,
+  topMargine: number = 10,
+  bottomMargine: number = 10
+): number => {
+  // Calculate position based on current time
+  const upperMinutes = upperBoundTime;
+  const lowerMinutes = lowerBoundTime;
+  const currentMinutes = currentTimeMinutes;
+  // Handle day wrap-around (e.g., if lowerBound is next day)
+  const totalMinutes =
+    lowerMinutes > upperMinutes
+      ? lowerMinutes - upperMinutes
+      : 24 * 60 - upperMinutes + lowerMinutes;
+
+  let elapsedMinutes;
+  if (lowerMinutes > upperMinutes) {
+    // Normal case (8:00 to 20:00)
+    elapsedMinutes = currentMinutes - upperMinutes;
+  } else {
+    // end time is the next day of start time (Time range crosses midnight)
+    if (currentMinutes >= upperMinutes) {
+      // current time is in the same day as start time
+      elapsedMinutes = currentMinutes - upperMinutes;
+    } else {
+      // current time is in the same day as end time
+      elapsedMinutes = 24 * 60 - upperMinutes + currentMinutes;
+    }
+  }
+  // make sure elapsed minutes is in valid range
+  elapsedMinutes = Math.max(0, Math.min(elapsedMinutes, totalMinutes));
+
+  // Calculate position (0 = top, 1 = bottom)
+  const progress = elapsedMinutes / totalMinutes;
+
+  // Convert to screen coordinates (accounting for body height)
+  const screenHeight = window.innerHeight;
+  const bodyHeight = 4; // Thin horizontal line
+
+  return topMargine + progress * (screenHeight - topMargine - bottomMargine);
+};
+
+export const chooseShape = (shapeName: string) => {
+  /*
+    TODO: move the choose shape and return the confige params mechanism from task object to here
+    in order to clean-up component code
+    */
+  return;
+};

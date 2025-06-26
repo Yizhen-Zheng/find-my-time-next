@@ -1,0 +1,28 @@
+@import "tailwindcss";
+/* 
+oklch color picker:
+https://oklch.eerolehtinen.fi/
+*/
+@theme {
+  /* Colors */
+  --color-primary: #afc8fe; /* purple */
+  --color-secondary: #a7a9f2; /* purple */
+  --color-text-default: #3c3c3c; /* gray-900 in RGB */
+  --color-background-light: #fbfbfb; /* gray-50 in RGB */
+
+  /* Font sizes (example, can be more complex with fluid typography) */
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem; /* Equivalent to text-lg */
+  --font-size-xl: 1.25rem; /* Equivalent to text-xl */
+
+  /* Spacing (if needed for non-Tailwind elements or arbitrary values) */
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+}
+
+body {
+  font-size: var(--font-size-base); /* Uses the CSS variable defined above */
+  line-height: 1.5;
+  color: rgb(var(--color-text-default)); /* Using the CSS variable */
+  background-color: rgb(var(--color-background-light));
+}
