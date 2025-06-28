@@ -1,8 +1,5 @@
 import { World } from "matter-js";
 import { createContext } from "react";
-type MatterContextType = {
-  world: World;
-  scene: HTMLDivElement;
-};
-export const MatterContext = createContext<World | null>(null);
-//
+import { MatterContextType } from "@/utils/types";
+export const MatterContext = createContext<MatterContextType | null>(null);
+//potentially need split canvas and world seperately

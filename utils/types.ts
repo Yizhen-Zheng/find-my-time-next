@@ -11,3 +11,11 @@ export type MatterContextType = {
   world: World;
   scene: HTMLDivElement;
 };
+export type SingleTaskCardActiveContextType = {
+  showSingleTaskCard: boolean;
+  setShowSingleTaskCard: (setActive: boolean) => void;
+};
+export type ActiveTaskContextType = {
+  activeTask: Task | null;
+  setActiveTask: (val: null | Task) => void;
+};

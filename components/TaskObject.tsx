@@ -3,18 +3,24 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { Query, World, Bodies, Body } from "matter-js";
 import { MatterContext } from "./context/MatterContext";
-import { Task, MatterContextType } from "@/utils/types";
+import { ActiveTaskContext } from "./context/ActiveTaskContext";
+import { Task, MatterContextType, ActiveTaskContextType } from "@/utils/types";
 import { getShapeColor } from "@/utils/helper";
 /*
 the task object(polygon)
 */
 interface TaskObjectProps {
   task: Task;
-
   // shape: string(maybe)
 }
 const TaskObject = ({ task }: TaskObjectProps) => {
+  // engine.world and the canvas div for manipulating body
   const { world, scene } = useContext(MatterContext) as MatterContextType;
+  // current active(selected) task and setter. can set current task as active if long pressed
+  const { activeTask, setActiveTask } = useContext(
+    ActiveTaskContext
+  ) as ActiveTaskContextType;
+  // hold the created body in canvas
   const bodyRef = useRef<Body | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [angle, setAngle] = useState(0);
@@ -29,7 +35,8 @@ const TaskObject = ({ task }: TaskObjectProps) => {
   const isPressedRef = useRef(false);
   const pressStartTimeRef = useRef(0);
   const LONG_PRESS_DURATION = 800; // 800ms for long press
-  // -----------long press-----------
+
+  // -----------manipulate popup window-----------
 
   useEffect(() => {
     if (!world) return;

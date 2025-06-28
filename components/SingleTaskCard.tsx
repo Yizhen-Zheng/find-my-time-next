@@ -1,10 +1,25 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-interface SingleTaskCardProps {
-  setShowSingleTaskCard: (showCard: boolean) => void;
-}
-const SingleTaskCard = ({ setShowSingleTaskCard }: SingleTaskCardProps) => {
+import React, { useEffect, useState, useContext } from "react";
+import { ActiveTaskContext } from "./context/ActiveTaskContext";
+import {
+  Task,
+  ActiveTaskContextType,
+  SingleTaskCardActiveContextType,
+} from "@/utils/types";
+import { SingleTaskCardActiveContext } from "./context/SingleTaskCardActiveContext";
+
+const SingleTaskCard = () => {
+  // close itself when click outside or cross
+  const { showSingleTaskCard, setShowSingleTaskCard } = useContext(
+    SingleTaskCardActiveContext
+  ) as SingleTaskCardActiveContextType;
+
+  // get current task to be shown
+  const { activeTask, setActiveTask } = useContext(
+    ActiveTaskContext
+  ) as ActiveTaskContextType;
+  // detailed information
   const [taskTitle, setTaskTitle] = useState<string>("default task title");
   const [duration, setDuration] = useState<number>(45); //duration in minuts
   useEffect(() => {}, [taskTitle]);

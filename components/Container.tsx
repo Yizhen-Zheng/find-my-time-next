@@ -125,7 +125,7 @@ const Container = ({ tasks }: ContainerProps) => {
   }, []);
   return (
     <>
-      <MatterContext
+      <MatterContext.Provider
         value={
           {
             world: engine.current.world,
@@ -141,7 +141,7 @@ const Container = ({ tasks }: ContainerProps) => {
             ))}
           </div>
         </div>
-      </MatterContext>
+      </MatterContext.Provider>
     </>
   );
 };
