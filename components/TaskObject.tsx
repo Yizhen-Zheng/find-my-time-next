@@ -4,14 +4,19 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { Query, World, Bodies, Body } from "matter-js";
 import { MatterContext } from "./context/MatterContext";
 import { ActiveTaskContext } from "./context/ActiveTaskContext";
-import { Task, MatterContextType, ActiveTaskContextType } from "@/utils/types";
+import { SingleTaskCardActiveContext } from "./context/SingleTaskCardActiveContext";
+import {
+  Task,
+  MatterContextType,
+  SingleTaskCardActiveContextType,
+  ActiveTaskContextType,
+} from "@/utils/types";
 import { getShapeColor } from "@/utils/helper";
 /*
 the task object(polygon)
 */
 interface TaskObjectProps {
   task: Task;
-  // shape: string(maybe)
 }
 const TaskObject = ({ task }: TaskObjectProps) => {
   // engine.world and the canvas div for manipulating body
@@ -20,6 +25,11 @@ const TaskObject = ({ task }: TaskObjectProps) => {
   const { activeTask, setActiveTask } = useContext(
     ActiveTaskContext
   ) as ActiveTaskContextType;
+  const { showSingleTaskCard, setShowSingleTaskCard } = useContext(
+    SingleTaskCardActiveContext
+  ) as SingleTaskCardActiveContextType;
+
+  // body / task info:
   // hold the created body in canvas
   const bodyRef = useRef<Body | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -107,9 +117,7 @@ const TaskObject = ({ task }: TaskObjectProps) => {
         World.remove(world, bodyRef.current);
       }
     };
-    // by removing world from deps, preventing re-rendering bodies every time,
-    // which will init bodies and choose different shapes every time
-    // not sure if it 'truly' solved the problem
+    // by removing world from deps, preventing re-rendering bodies every time adding new body to world,
   }, []);
 
   useEffect(() => {
@@ -131,6 +139,9 @@ const TaskObject = ({ task }: TaskObjectProps) => {
         // start long press timer:
         longPressTimerRef.current = setTimeout(() => {
           if (isPressedRef.current) {
+            // FIXME: the first added(default task) don't have these properties
+            setActiveTask(task);
+            setShowSingleTaskCard(true);
             // replace the console log with handlePopupInfoWindow
             // pass a setter from Dayview(or use another context called popup window context)
             // set condition to true to show that window
@@ -151,6 +162,7 @@ const TaskObject = ({ task }: TaskObjectProps) => {
       if (isPressedRef.current) {
         const pressDuration = Date.now() - pressStartTimeRef.current;
         // maybe show popup after ending long press
+
         console.log(`press ended after ${pressDuration}ms on ${task.taskId}`);
       }
       isPressedRef.current = false;

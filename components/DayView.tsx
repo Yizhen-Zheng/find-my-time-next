@@ -33,7 +33,7 @@ const DayView = () => {
 
   useEffect(() => {
     // handle mouse events
-  }, []);
+  }, [showSingleTaskCard]);
   return (
     <>
       <SingleTaskCardActiveContext.Provider
@@ -46,7 +46,7 @@ const DayView = () => {
           value={{ activeTask: activeTask, setActiveTask: setActiveTask }}
         >
           <div className="fixed w-full h-full  flex flex-col justify-center items-center bg-primary">
-            {showSingleTaskCard && <SingleTaskCard />}
+            <SingleTaskCard />
             <button
               onClick={addTask}
               className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-300 to-cyan-300 hover:from-cyan-300 hover:to-violet-300 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 ease-in-out z-10 text-lg transform hover:scale-105 active:scale-95 "

@@ -23,13 +23,14 @@ const SingleTaskCard = () => {
   const [taskTitle, setTaskTitle] = useState<string>("default task title");
   const [duration, setDuration] = useState<number>(45); //duration in minuts(e.g.: 45, 90,...)
 
-  useEffect(() => {}, [taskTitle]);
+  useEffect(() => {}, [showSingleTaskCard]);
 
   /*
   TODO: 
     animation for ease-in, ease-out in css
     text layout
   */
+  if (!showSingleTaskCard) return;
   return (
     <>
       <div className="bg-amber-100 rounded-2xl w-full h-3/5 absolute z-1 bottom-[-10px]">

@@ -128,8 +128,8 @@ const Container = ({ tasks }: ContainerProps) => {
         <div className="fixed w-full h-full  bg-transparent flex flex-col justify-center items-center">
           <div ref={sceneRef} className="w-full h-full">
             <CurrentTime />
-            {tasks.map((title, idx) => (
-              <TaskObject task={title} key={idx} />
+            {tasks.map((task, idx) => (
+              <TaskObject task={task} key={idx} />
             ))}
           </div>
         </div>
