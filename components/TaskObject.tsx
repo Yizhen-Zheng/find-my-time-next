@@ -40,6 +40,8 @@ const TaskObject = ({ task }: TaskObjectProps) => {
 
   useEffect(() => {
     if (!world) return;
+    // TODO: replace this with getting current time line position, then only add to spces below the current time line
+    // will be good for later delete handler to function properly
     const startX = Math.random() * (window.innerWidth - 200) + 100;
     const startY = Math.random() * 200 + 100;
 
@@ -89,6 +91,30 @@ const TaskObject = ({ task }: TaskObjectProps) => {
       y: verticalForce,
     });
 
+    //add created body to world after creating body
+    bodyRef.current = body;
+    World.add(world, body);
+
+    // Update position and angle based on physics
+    const updatePosition = () => {
+      return;
+    };
+    const interval = setInterval(updatePosition, 160); // ~60fps
+
+    return () => {
+      clearInterval(interval);
+      if (bodyRef.current && world) {
+        World.remove(world, bodyRef.current);
+      }
+    };
+    // by removing world from deps, preventing re-rendering bodies every time,
+    // which will init bodies and choose different shapes every time
+    // not sure if it 'truly' solved the problem
+  }, []);
+
+  useEffect(() => {
+    if (!bodyRef.current) return;
+    const body = bodyRef.current;
     // ------------define long touch / press handlers------------
     if (!scene) return;
     // Mouse/Touch event handlers
@@ -180,11 +206,9 @@ const TaskObject = ({ task }: TaskObjectProps) => {
       }
     };
 
-    //add created body to world after creating body
-    bodyRef.current = body;
-    World.add(world, body);
-
-    // Add event listeners
+    // Add event listeners.
+    // each body added to scene will add such a set of eventlisteners to scene
+    // cus we're using closure to contain each one's bodyRef and so on infos
     scene.addEventListener("mousedown", handleMouseDown);
     scene.addEventListener("mouseup", handleMouseUp);
     scene.addEventListener("mousemove", handleMouseMove);
@@ -193,24 +217,7 @@ const TaskObject = ({ task }: TaskObjectProps) => {
     scene.addEventListener("touchstart", handleTouchStart, { passive: false });
     scene.addEventListener("touchend", handleTouchEnd, { passive: false });
     scene.addEventListener("touchmove", handleTouchMove, { passive: false });
-
-    // Update position and angle based on physics
-    const updatePosition = () => {
-      return;
-    };
-    const interval = setInterval(updatePosition, 160); // ~60fps
-
-    return () => {
-      clearInterval(interval);
-      if (bodyRef.current && world) {
-        World.remove(world, bodyRef.current);
-      }
-    };
-    // by removing world from deps, preventing re-rendering bodies every time,
-    // which will init bodies and choose different shapes every time
-    // not sure if it 'truly' solved the problem
   }, []);
-
   return <></>;
 };
 

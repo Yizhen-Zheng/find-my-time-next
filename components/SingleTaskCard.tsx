@@ -19,16 +19,17 @@ const SingleTaskCard = () => {
   const { activeTask, setActiveTask } = useContext(
     ActiveTaskContext
   ) as ActiveTaskContextType;
-  // detailed information
+  // detailed information about task
   const [taskTitle, setTaskTitle] = useState<string>("default task title");
-  const [duration, setDuration] = useState<number>(45); //duration in minuts
+  const [duration, setDuration] = useState<number>(45); //duration in minuts(e.g.: 45, 90,...)
+
   useEffect(() => {}, [taskTitle]);
+
   /*
   TODO: 
-    animation for ease-in, ease-out
+    animation for ease-in, ease-out in css
     text layout
   */
-
   return (
     <>
       <div className="bg-amber-100 rounded-2xl w-full h-3/5 absolute z-1 bottom-[-10px]">
