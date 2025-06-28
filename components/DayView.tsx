@@ -1,22 +1,29 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { Engine, Render, World, Bodies, Runner } from "matter-js";
 import Container from "./Container";
 import SingleTaskCard from "./SingleTaskCard";
+import { Task } from "@/utils/types";
 /*
 the top-most page component
 */
 const DayView = () => {
   // hardcoded placeholder data
-  const defaultValues = ["Homework", "Laundry", "Walk my dog"];
-  const [tasks, setTasks] = useState<Array<string>>(defaultValues);
+
+  const defaultValues: Array<Task> = [
+    { title: "First task", taskId: 0 } as Task,
+  ];
+  const [tasks, setTasks] = useState<Array<Task>>(defaultValues);
   const [showSingleTaskCard, setShowSingleTaskCard] = useState<boolean>(true);
   // Stores taskTitle of the long-pressed body
 
   const addTask = () => {
     // handle adding new tasks
     // create placeholder value
-    setTasks((prev) => [...prev, "AddedTask"]);
+    const defaultNewTask: Task = {
+      title: "TaskTitle",
+      taskId: defaultValues.length,
+    };
+    setTasks((prev) => [...prev, defaultNewTask]);
   };
 
   useEffect(() => {

@@ -1,17 +1,3 @@
-export const timeToArea = (
-  startTime: number,
-  endTime: number,
-  upperBound: number,
-  lowerBound: number
-) => {
-  /*
-    TODO: consider the screen size (maybe query the device), 
-    the area response to total available time (e.g.: total available is 6 hour, task time takes 3 hours, then the object should have approximately 1/2 area of the container's white space)
-    */
-
-  return;
-};
-
 export const calculateCurrentTimeYPosition = (
   upperBoundTime: number,
   lowerBoundTime: number,
@@ -56,10 +42,37 @@ export const calculateCurrentTimeYPosition = (
   return topMargine + progress * (screenHeight - topMargine - bottomMargine);
 };
 
+// ----------- task visual generator-----------
+// TODO:  conditionally switch params for creating matters Body
+// will need a decision function, depends on duration, category, ...
+// and this condition will be extracted by Gemini', returning JSON ,...
+export const getShapeColor = (shape: string): string => {
+  const colors = {
+    Ball: ["#ff6b6b", "#ff8e53", "#ff6b9d", "#c44569", "#88ebeb"],
+    Rectangle: ["#4ecdc4", "#45aaf2", "#26de81", "#2bcbba"],
+    Pentagon: ["#45b7d1", "#96ceb4", "#ffeaa7", "#dda0dd"],
+  };
+  const shapeColors = colors[shape as keyof typeof colors] || colors.Ball;
+  return shapeColors[Math.floor(Math.random() * shapeColors.length)];
+};
+
 export const chooseShape = (shapeName: string) => {
   /*
     TODO: move the choose shape and return the confige params mechanism from task object to here
     in order to clean-up component code
     */
+  return;
+};
+export const timeToArea = (
+  startTime: number,
+  endTime: number,
+  upperBound: number,
+  lowerBound: number
+) => {
+  /*
+    TODO: consider the screen size (maybe query the device), 
+    the area response to total available time (e.g.: total available is 6 hour, task time takes 3 hours, then the object should have approximately 1/2 area of the container's white space)
+    */
+
   return;
 };

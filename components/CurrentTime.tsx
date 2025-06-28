@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { Engine, Render, World, Bodies, Body } from "matter-js";
 import { MatterContext } from "./context/MatterContext";
 import { calculateCurrentTimeYPosition } from "../utils/helper";
+import { Task, MatterContextType } from "@/utils/types";
 /*
 the task object(polygon)
 a rigid line, slides fown from top of screen to down. 
@@ -22,7 +23,7 @@ const CurrentTime = ({
   topBound = 10,
   bottomBound = 10,
 }: CurrentTimeProps) => {
-  const world = useContext(MatterContext);
+  const { world, scene } = useContext(MatterContext) as MatterContextType;
   const bodyRef = useRef<Body | null>(null);
   const animationRef = useRef<number>(0);
   const [currentTimeReadable, setCurrentTimeReadable] = useState<string>();

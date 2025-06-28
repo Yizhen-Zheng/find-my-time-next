@@ -12,43 +12,24 @@ import {
   MouseConstraint,
 } from "matter-js";
 import { MatterContext } from "./context/MatterContext";
-
 import TaskObject from "./TaskObject";
 import CurrentTime from "./CurrentTime";
+import { Task, MatterContextType } from "@/utils/types";
 /*
 the page component
 renderer goes here
 */
 interface ContainerProps {
-  tasks: Array<string>;
+  tasks: Array<Task>;
 }
 const Container = ({ tasks }: ContainerProps) => {
+  // -----------matters.js ref-----------
   const sceneRef = useRef<HTMLDivElement>(null);
   const engine = useRef(Engine.create());
   const render = useRef<Render>(null);
   const runner = useRef<Runner>(null);
-  // long press
-  const [longPressedTask, setLongPressedTask] = useState(null);
-  // True when mouse is down on a body
-  const isPressingRef = useRef(false);
-  // Timestamp when mouse press started
-  const pressStartTimeRef = useRef(0);
-  const longPressTimeoutRef = useRef(null);
-  const activeBodyRef = useRef(null);
 
-  const longPressThreshold = 700; // Duration in milliseconds for a press to be considered "long"
-  const moveThreshold = 5; // Maximum pixel movement allowed during a long press
-
-  //   function to handle adding task
-  //   TODO: handle tasks adding that only re-render that task, not all tasks(Gemini)
-  //   const addTask = () => {
-  //     if (sceneRef.current) {
-  //       const newTaskBody = createNewBody(`New Task ${bodies.length + 1}`);
-  //       World.add(engine.current.world, newTaskBody);
-  //       setBodies((prev) => [...prev, newTaskBody]); // Add to React state
-  //     }
-  //   };
-  //  initialize the engine
+  // -----------initialize the engine-----------
   useEffect(() => {
     if (!sceneRef.current) return;
     //  config gravity
@@ -134,6 +115,7 @@ const Container = ({ tasks }: ContainerProps) => {
     console.log(tasks);
   }, [tasks]);
 
+  // -----------long press-----------
   // TODO: long press handler(Gemini)
   useEffect(() => {
     // --- Mouse Down Handler ---
@@ -143,12 +125,19 @@ const Container = ({ tasks }: ContainerProps) => {
   }, []);
   return (
     <>
-      <MatterContext value={engine.current.world}>
+      <MatterContext
+        value={
+          {
+            world: engine.current.world,
+            scene: sceneRef.current,
+          } as MatterContextType
+        }
+      >
         <div className="fixed w-full h-full  bg-transparent flex flex-col justify-center items-center">
           <div ref={sceneRef} className="w-full h-full">
             <CurrentTime />
             {tasks.map((title, idx) => (
-              <TaskObject taskTitle={title} key={idx} />
+              <TaskObject task={title} key={idx} />
             ))}
           </div>
         </div>
