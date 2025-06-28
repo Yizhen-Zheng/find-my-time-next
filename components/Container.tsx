@@ -115,14 +115,6 @@ const Container = ({ tasks }: ContainerProps) => {
     console.log(tasks);
   }, [tasks]);
 
-  // -----------long press-----------
-  // TODO: long press handler(Gemini)
-  useEffect(() => {
-    // --- Mouse Down Handler ---
-    // Get mouse position relative to the canvas
-    // Query for Matter.js bodies at the mouse position
-    // If a body is found, consider it for a long press
-  }, []);
   return (
     <>
       <MatterContext.Provider

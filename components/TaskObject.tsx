@@ -24,7 +24,7 @@ const TaskObject = ({ task }: TaskObjectProps) => {
   const bodyRef = useRef<Body | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [angle, setAngle] = useState(0);
-  // choose shape
+  // choose shape(temp)
   const shapes = ["Ball", "Pentagon", "Rectangle", "Triangle"];
   const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
 
@@ -206,9 +206,11 @@ const TaskObject = ({ task }: TaskObjectProps) => {
         World.remove(world, bodyRef.current);
       }
     };
-  }, [world, shapeType]);
+    // by removing world from deps, preventing re-rendering bodies every time,
+    // which will init bodies and choose different shapes every time
+    // not sure if it 'truly' solved the problem
+  }, []);
 
-  //
   return <></>;
 };
 
