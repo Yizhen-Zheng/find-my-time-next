@@ -26,7 +26,7 @@ const DayView = () => {
     // create placeholder value
     const defaultNewTask: Task = {
       title: "TaskTitle",
-      taskId: defaultValues.length,
+      taskId: Math.random(),
     };
     setTasks((prev) => [...prev, defaultNewTask]);
   };

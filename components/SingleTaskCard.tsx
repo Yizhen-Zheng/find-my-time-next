@@ -23,7 +23,9 @@ const SingleTaskCard = () => {
   const [taskTitle, setTaskTitle] = useState<string>("default task title");
   const [duration, setDuration] = useState<number>(45); //duration in minuts(e.g.: 45, 90,...)
 
-  useEffect(() => {}, [showSingleTaskCard]);
+  useEffect(() => {
+    console.log(activeTask);
+  }, [showSingleTaskCard]);
 
   /*
   TODO: 

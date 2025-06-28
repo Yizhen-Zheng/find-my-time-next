@@ -139,9 +139,10 @@ const TaskObject = ({ task }: TaskObjectProps) => {
         // start long press timer:
         longPressTimerRef.current = setTimeout(() => {
           if (isPressedRef.current) {
-            // FIXME: the first added(default task) don't have these properties
+            // FIXME: the first added(default task) don't have these properties(handle long press...)
             setActiveTask(task);
             setShowSingleTaskCard(true);
+
             // replace the console log with handlePopupInfoWindow
             // pass a setter from Dayview(or use another context called popup window context)
             // set condition to true to show that window
@@ -230,6 +231,7 @@ const TaskObject = ({ task }: TaskObjectProps) => {
     scene.addEventListener("touchend", handleTouchEnd, { passive: false });
     scene.addEventListener("touchmove", handleTouchMove, { passive: false });
   }, []);
+
   return <></>;
 };
 

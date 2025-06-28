@@ -63,6 +63,11 @@ export const chooseShape = (shapeName: string) => {
     */
   return;
 };
+// colors to choose comes here
+// Non-MVP: user choose color from a palette
+export const taskColor = ["#c2fcd9"];
+
+// obj area calculator
 export const timeToArea = (
   startTime: number,
   endTime: number,

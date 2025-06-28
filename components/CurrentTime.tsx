@@ -73,7 +73,8 @@ const CurrentTime = ({
       {
         isStatic: true, // Static so it doesn't fall due to gravity
         render: {
-          fillStyle: "#fef3c6", // Red color for visibility
+          fillStyle: "#fdf7c3", //FDF7C3
+          // fillStyle: "#fef3c6", //FDF7C3
           strokeStyle: "#fef3c6",
           lineWidth: 1,
         },
