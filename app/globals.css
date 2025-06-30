@@ -6,7 +6,7 @@ https://oklch.eerolehtinen.fi/
 @theme {
   /* Colors */
   --color-primary: #afc8fe; /* purple */
-  --color-secondary: #fef3c6; /* purple */
+  --color-secondary: #fef3c6; /* yellow */
   --color-text-default: #3c3c3c; /* gray-900 in RGB */
   --color-background-light: #fbfbfb; /* gray-50 in RGB */
 
@@ -26,3 +26,4 @@ body {
   color: rgb(var(--color-text-default)); /* Using the CSS variable */
   background-color: rgb(var(--color-background-light));
 }
+

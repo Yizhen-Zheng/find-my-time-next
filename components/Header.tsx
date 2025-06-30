@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 const Header = () => {
   return (
     <div className="px-6 py-8">
@@ -7,9 +8,11 @@ const Header = () => {
           <h1 className="text-2xl font-bold text-slate-800 mb-2">
             [Username]'s Calendar
           </h1>
-          <p className="text-2xl font-bold text-slate-800 mb-2 right-0 ">
-            User avadar
-          </p>
+          <Link href={"/user"}>
+            <p className="text-2xl font-bold text-slate-800 mb-2 right-0 ">
+              User avadar
+            </p>
+          </Link>
         </div>
         <p className="text-slate-600">
           Stay organized and plan your days effectively

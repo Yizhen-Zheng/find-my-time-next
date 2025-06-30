@@ -59,7 +59,7 @@ export default function Home() {
                 </Link>
 
                 {/* Help Me Plan Card */}
-                <Link href={"/"}>
+                <Link href={"/task"}>
                   <div className="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-200 hover:border-[#fef3c6] cursor-pointer">
                     <div className="flex items-center justify-between mb-4">
                       <div className="w-12 h-12 bg-[#fef3c6] bg-opacity-60 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
