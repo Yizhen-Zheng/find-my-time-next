@@ -1,5 +1,6 @@
 "use server";
-import { Task } from "@/utils/types";
+
+import { Task, TaskFromSupabase } from "@/utils/types";
 /**
  * Processes a natural language string to extract structured task data using the Gemini API.
  * @param existingTasks - An array of tasks that already exist, for context.
@@ -12,7 +13,6 @@ export async function extractTasksFromText(
 ): Promise<{ tasks?: Task[]; error?: string }> {
   // Ensure the API key is available. It's read from .env.local on the server.
   const apiKey = process.env.GEMINI_API_KEY;
-  console.log(apiKey); //undefined
   if (!apiKey) {
     console.error("Missing GEMINI_API_KEY environment variable.");
     return { error: "Server configuration error: Missing API key." };
@@ -61,7 +61,7 @@ export async function extractTasksFromText(
           type: "OBJECT",
           properties: {
             title: { type: "STRING" },
-            type: {
+            taskType: {
               type: "STRING",
               enum: [
                 "Meeting",
@@ -76,7 +76,7 @@ export async function extractTasksFromText(
             importance: { type: "STRING", enum: ["High", "Medium", "Low"] },
             dueDate: { type: "STRING" },
           },
-          required: ["title", "type", "duration", "importance", "dueDate"],
+          required: ["title", "taskType", "duration", "importance", "dueDate"],
         },
       },
     },
@@ -106,6 +106,8 @@ export async function extractTasksFromText(
       return { error: `API request failed with status ${response.status}` };
     }
 
+    let newTasksFromAI: Omit<TaskFromSupabase, "id">[] = [];
+
     const result = await response.json();
 
     if (
@@ -114,17 +116,13 @@ export async function extractTasksFromText(
       result.candidates[0].content?.parts?.[0]?.text
     ) {
       const jsonText = result.candidates[0].content.parts[0].text;
-      const parsedJson = JSON.parse(jsonText);
+      const newTasksFromAI = JSON.parse(jsonText)?.tasks;
 
-      // Add a unique ID to each task returned by the AI
-      const newTasksWithIds = parsedJson.tasks.map(
-        (task: Omit<Task, "id">) => ({
-          ...task,
-          id: crypto.randomUUID(),
-        })
-      );
-
-      return { tasks: newTasksWithIds };
+      if (newTasksFromAI.length === 0) {
+        return { tasks: [] }; // No new tasks found
+      }
+      //   return generated tasks to db
+      return { tasks: newTasksFromAI as TaskFromSupabase[] };
     } else {
       console.error("Unexpected API response structure:", result);
       // Check for safety ratings or other reasons for no content

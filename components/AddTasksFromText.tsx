@@ -1,24 +1,21 @@
-"use client"; // <--- This is essential for using hooks like useState and for interactivity.
+"use client";
 
 import { useEffect, useState, useTransition } from "react";
 import { Task } from "@/utils/types";
 import { extractTasksFromText } from "@/app/actions/genaiActions";
+import { saveNewTasksToDb } from "@/app/actions/dbActions";
 import React from "react";
 import { createBrowserClient } from "@supabase/ssr";
+import Link from "next/link";
+import TaskCard from "./TaskCard";
 
-function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-const TextArea = () => {
+const AddTasksFromText = () => {
   // State for the list of tasks
   const [tasks, setTasks] = useState<Task[]>([
     {
       taskId: 1,
       title: "Follow up with the design team",
-      type: "Work",
+      taskType: "Work",
       duration: 15,
       importance: "Medium",
       dueDate: "2025-07-01",
@@ -27,29 +24,42 @@ const TextArea = () => {
   // State for the text input
   const [text, setText] = useState("");
   // State for handling errors from the server action
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
 
   // useTransition hook to manage loading states without blocking the UI
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError(false);
     // startTransition wraps the server action call
     startTransition(async () => {
-      const result = await extractTasksFromText(tasks, text);
-      if (result.error) {
-        setError(result.error);
-      } else if (result.tasks) {
-        setTasks((prevTasks) => [...prevTasks, ...result.tasks!]);
-        setText(""); // Clear input on success
+      const { tasks: newTasks, error: AIError } = await extractTasksFromText(
+        tasks,
+        text
+      );
+      if (newTasks && newTasks.length > 0) {
+        const { tasks: savedTasks, error: dbError } = await saveNewTasksToDb(
+          newTasks
+        );
+        if (savedTasks && savedTasks.length > 0) {
+          setTasks((prevTasks) => [...prevTasks, ...savedTasks]);
+          setText(""); // Clear input on success
+        } else if (dbError) {
+          // catch db err
+          console.error("DB error: ", dbError);
+          setError(true);
+        }
+      } else if (AIError) {
+        //catch ai err
+        console.error("AI error: ", AIError);
+        setError(true);
       }
     });
   };
   useEffect(() => {
     console.log("test");
-    const test = async () => {};
-  }, []);
+  }, [tasks]);
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans">
@@ -108,37 +118,21 @@ const TextArea = () => {
                 <p className="text-slate-500">No tasks yet. Add one above!</p>
               </div>
             )}
-            {tasks.map((task, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-4"
-              >
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    task.importance === "High"
-                      ? "bg-red-500"
-                      : task.importance === "Medium"
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
-                  }`}
-                ></div>
-                <div className="flex-grow">
-                  <p className="font-semibold text-slate-800">{task.title}</p>
-                  <div className="flex items-center space-x-4 text-sm text-slate-500 mt-1">
-                    <span>🗓️ {task.dueDate}</span>
-                    <span>⏱️ {task.duration} min</span>
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs font-medium">
-                      {task.type}
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {tasks.map((task) => (
+              <TaskCard taskProp={task} />
             ))}
           </div>
+        </div>
+        <div className="items-center justify-center flex flex-col">
+          <button className=" border border-blue-400 rounded-lg bg-blue-200">
+            <Link href={"/"}>View All Tasks</Link>
+          </button>
+          which haven't been implemented yet. click above will send you to home
+          page
         </div>
       </div>
     </div>
   );
 };
 
-export default TextArea;
+export default AddTasksFromText;

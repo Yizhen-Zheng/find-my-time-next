@@ -81,3 +81,27 @@ export const timeToArea = (
 
   return;
 };
+
+/**
+ * Converts an ISO date string to YY-MM-DD format.
+ * @param isoString The date string from Supabase (e.g., '2025-07-01T14:05:52.098901+00:00')
+ * @returns A formatted string 'YY-MM-DD' (e.g., '25-07-01')
+ */
+export const formatToYYMMDD = (isoString?: string): string => {
+  // 1. Create a Date object. The ISO format is parsed natively.
+  let date;
+  if (isoString) {
+    date = new Date(isoString);
+  } else {
+    date = new Date();
+  }
+  // 2. Get the last two digits of the year.
+  const year = date.getFullYear().toString().slice(-2);
+  // 3. Get the month. **IMPORTANT**: getMonth() is 0-indexed (0=Jan, 11=Dec), so we add 1.
+  // We then use padStart to ensure it's always two digits (e.g., '07' instead of '7').
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  // 4. Get the day of the month and pad it to two digits.
+  const day = date.getDate().toString().padStart(2, "0");
+  // 5. Join them with hyphens.
+  return `${year}-${month}-${day}`;
+};

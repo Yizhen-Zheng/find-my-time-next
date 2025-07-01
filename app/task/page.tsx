@@ -1,5 +1,4 @@
-import React from "react";
-import TextArea from "@/components/TextArea";
+import AddTasksFromText from "@/components/AddTasksFromText";
 export default function Page() {
   // TODO:
   // Top: Add new weekl plan(default from today to next sunday)
@@ -9,7 +8,7 @@ export default function Page() {
   return (
     <>
       <div className="">
-        <TextArea></TextArea>
+        <AddTasksFromText></AddTasksFromText>
       </div>
     </>
   );
