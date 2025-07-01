@@ -1,5 +1,5 @@
 import AddTasksFromText from "@/components/AddTasksFromText";
-import { fetchAllTasksOfUser } from "../actions/dbActions";
+import { fetchAllTasksOfUser } from "../../actions/dbActions";
 export default async function Page() {
   // TODO:
   // Top: Add new weekl plan(default from today to next sunday)
@@ -9,12 +9,7 @@ export default async function Page() {
   const { tasks: initialTasks, error } = await fetchAllTasksOfUser();
   return (
     <>
-      <div className="">
-        <AddTasksFromText
-          initialTasks={initialTasks || []}
-          fetchInitialTasksError={error}
-        ></AddTasksFromText>
-      </div>
+      <div className="">manage all your tasks</div>
     </>
   );
 }

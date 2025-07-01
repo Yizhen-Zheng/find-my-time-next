@@ -5,26 +5,24 @@ import { Task } from "@/utils/types";
 import { extractTasksFromText } from "@/app/actions/genaiActions";
 import { saveNewTasksToDb } from "@/app/actions/dbActions";
 import React from "react";
-import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 import TaskCard from "./TaskCard";
-
-const AddTasksFromText = () => {
+interface AddTasksFromTextProps {
+  initialTasks: Task[];
+  fetchInitialTasksError?: string;
+}
+const AddTasksFromText = ({
+  initialTasks,
+  fetchInitialTasksError,
+}: AddTasksFromTextProps) => {
   // State for the list of tasks
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      taskId: 1,
-      title: "Follow up with the design team",
-      taskType: "Work",
-      duration: 15,
-      importance: "Medium",
-      dueDate: "2025-07-01",
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
   // State for the text input
   const [text, setText] = useState("");
   // State for handling errors from the server action
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(
+    fetchInitialTasksError !== undefined
+  );
 
   // useTransition hook to manage loading states without blocking the UI
   const [isPending, startTransition] = useTransition();
@@ -58,7 +56,7 @@ const AddTasksFromText = () => {
     });
   };
   useEffect(() => {
-    console.log("test");
+    console.log(tasks);
   }, [tasks]);
 
   return (
@@ -66,12 +64,9 @@ const AddTasksFromText = () => {
       <div className="container mx-auto p-4 md:p-8 max-w-4xl">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-slate-800 mb-2">
-            AI Task Manager
+            Add new Task
           </h1>
-          <p className="text-slate-500">
-            Describe what you need to do in plain English. Our AI will schedule
-            it for you.
-          </p>
+          <p className="text-slate-500">What you need to do today?</p>
         </header>
 
         {/* Task Input Form */}
@@ -119,16 +114,14 @@ const AddTasksFromText = () => {
               </div>
             )}
             {tasks.map((task) => (
-              <TaskCard taskProp={task} />
+              <TaskCard taskProp={task} key={task.taskId} />
             ))}
           </div>
         </div>
         <div className="items-center justify-center flex flex-col">
           <button className=" border border-blue-400 rounded-lg bg-blue-200">
-            <Link href={"/"}>View All Tasks</Link>
+            <Link href={"/task/all-task"}>View All Tasks</Link>
           </button>
-          which haven't been implemented yet. click above will send you to home
-          page
         </div>
       </div>
     </div>

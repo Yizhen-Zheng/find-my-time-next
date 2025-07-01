@@ -36,21 +36,58 @@ export async function saveNewTasksToDb(
     console.error("Supabase error: ", error);
     return { error: "Failed to insert new tasks into DB" };
   }
-  console.log(data);
   //   convert from snake case to camel case
   const tasks = taskFromSupabaseToTask(data);
   return { tasks };
 }
 
-// export async function fetchTaskByUser(): Promise<{
-//   tasks?: Task[];
-//   error?: string;
-// }> {
-//   const supabase = await createClient();
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
-//   if (!user) {
-//     return { error: "User must be logged in" };
-//   }
-// }
+// fetch all tasks of a user
+export async function fetchAllTasksOfUser(): Promise<{
+  tasks?: Task[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "User must be logged in" };
+  }
+  const { data: allTasksOfUser, error: DBError } = await supabase
+    .from("task")
+    .select()
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  if (DBError) {
+    console.error("Supabase error: ", DBError);
+    return { error: "Failed to insert new tasks into DB" };
+  }
+  const tasks = taskFromSupabaseToTask(allTasksOfUser);
+  return { tasks };
+}
+
+// given a date, fetch all tasks at the same date of the user
+// currently just fetch all and filter in js
+export async function fetchTasksOfUserByDate(dateIsoString: string): Promise<{
+  tasks?: Task[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "User must be logged in" };
+  }
+  const { data: allTasksOfUser, error: DBError } = await supabase
+    .from("task")
+    .select()
+    .eq("user_id", user.id);
+  if (DBError) {
+    console.error("Supabase error: ", DBError);
+    return { error: "Failed to insert new tasks into DB" };
+  }
+  //   convert from snake case to camel case
+  const tasks = taskFromSupabaseToTask(allTasksOfUser);
+  return { tasks };
+}
