@@ -9,10 +9,8 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           {/* Quick Actions */}
           <div className="mb-12">
-            <h2 className="text-xl font-semibold text-slate-700 mb-6">
-              Quick Actions
-            </h2>
             <div className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-xl font-semibold text-slate-700 mb-6"></h2>
               {/* Daily View Card */}
               <Link href="/daily-view">
                 <div className="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-200 hover:border-[#afc8fe] cursor-pointer">

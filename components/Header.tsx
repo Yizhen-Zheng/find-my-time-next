@@ -1,20 +1,125 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { AlignJustify } from "lucide-react";
-import { X } from "lucide-react";
+import { X, ListTodo } from "lucide-react";
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ x: 16, y: 16 }); // Initial position (top-4 left-4 = 16px)
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen);
+    if (!isDragging) {
+      setIsOpen(!isOpen);
+    }
   };
 
   const closeMenu = () => {
     setIsOpen(false);
   };
+
+  // Handle mouse down
+  const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!buttonRef.current) return;
+
+    e.preventDefault();
+    setIsDragging(true);
+
+    const rect = buttonRef.current.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  // Handle touch start
+  const handleTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
+    if (!buttonRef.current) return;
+    e.preventDefault();
+    setIsDragging(true);
+
+    const rect = buttonRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    setDragOffset({
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+    });
+  };
+
+  // Handle drag movement
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+
+      // Constrain to viewport bounds
+      const maxX = window.innerWidth - 60; // 60px is approximate button width
+      const maxY = window.innerHeight - 60;
+
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY)),
+      });
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+
+      const touch = e.touches[0];
+      const newX = touch.clientX - dragOffset.x;
+      const newY = touch.clientY - dragOffset.y;
+
+      // Constrain to viewport bounds
+      const maxX = window.innerWidth - 60;
+      const maxY = window.innerHeight - 60;
+
+      setPosition({
+        x: Math.max(0, Math.min(newX, maxX)),
+        y: Math.max(0, Math.min(newY, maxY)),
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    const handleTouchEnd = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove);
+      document.addEventListener("touchend", handleTouchEnd);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [isDragging, dragOffset]);
+
+  // Save position to localStorage
+  useEffect(() => {
+    const savedPosition = localStorage.getItem("hamburger-position");
+    if (savedPosition) {
+      setPosition(JSON.parse(savedPosition));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("hamburger-position", JSON.stringify(position));
+  }, [position]);
 
   const navItems = [
     {
@@ -57,7 +162,7 @@ export default function Header() {
     },
     {
       href: "/task",
-      label: "Tasks",
+      label: "Add Tasks",
       icon: (
         <svg
           className="w-5 h-5"
@@ -73,6 +178,11 @@ export default function Header() {
           />
         </svg>
       ),
+    },
+    {
+      href: "/task/all-task",
+      label: "All tasks",
+      icon: <ListTodo className="size-4" />,
     },
     {
       href: "/log-in",
@@ -97,14 +207,24 @@ export default function Header() {
 
   return (
     <>
-      {/* Hamburger Button */}
+      {/* Draggable Hamburger Button */}
       <button
+        ref={buttonRef}
         onClick={toggleMenu}
-        className={`fixed top-4 left-4 z-50 p-3 rounded-xl shadow-lg transition-all duration-300 ${
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        className={`fixed z-50 p-3 rounded-xl shadow-lg transition-all duration-300 select-none ${
+          isDragging ? "cursor-grabbing" : "cursor-grab"
+        } ${
           isOpen
-            ? "bg-slate-800 text-white"
+            ? "bg-white text-slate-700 "
             : "bg-white text-slate-700 hover:bg-[#afc8fe] hover:text-white"
         }`}
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          touchAction: "none", // Prevent default touch behaviors
+        }}
         aria-label="Toggle navigation menu"
       >
         <div className="relative w-6 h-6">
@@ -135,22 +255,7 @@ export default function Header() {
       >
         {/* Header */}
         <div className="p-6 bg-gradient-to-r from-[#bbd9ff] to-[#83aaff]">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
+          <div className="flex items-center space-x-3 ml-14">
             <div>
               <h2 className="text-white font-semibold text-lg">User name</h2>
               <p className="text-blue-100 text-sm">Navigation Menu</p>

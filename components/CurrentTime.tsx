@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef, useContext } from "react";
-import { Engine, Render, World, Bodies, Body } from "matter-js";
+import { World, Bodies, Body } from "matter-js";
 import { MatterContext } from "./context/MatterContext";
 import { calculateCurrentTimeYPosition } from "../utils/helper";
-import { Task, MatterContextType } from "@/utils/types";
+import { MatterContextType } from "@/utils/types";
 /*
 the task object(polygon)
 a rigid line, slides fown from top of screen to down. 
@@ -20,9 +20,9 @@ interface CurrentTimeProps {
 const CurrentTime = ({
   upperBoundTime = "08:00",
   lowerBoundTime = "20:00",
-  topBound = 10,
-  bottomBound = 10,
-}: CurrentTimeProps) => {
+}: // topBound = 10,
+// bottomBound = 10,
+CurrentTimeProps) => {
   const { world, scene } = useContext(MatterContext) as MatterContextType;
   const bodyRef = useRef<Body | null>(null);
   const animationRef = useRef<number>(0);
@@ -41,9 +41,9 @@ const CurrentTime = ({
   // handle update position
   const updatePosition = () => {
     if (bodyRef.current) {
-      let start = timeToMinutes(upperBoundTime);
-      let end = timeToMinutes(lowerBoundTime);
-      let current = getCurrentTimeMinutes();
+      const start = timeToMinutes(upperBoundTime);
+      const end = timeToMinutes(lowerBoundTime);
+      const current = getCurrentTimeMinutes();
       const newY = calculateCurrentTimeYPosition(start, end, current);
       Body.setPosition(bodyRef.current, {
         x: bodyRef.current.position.x,
@@ -60,9 +60,9 @@ const CurrentTime = ({
     const bodyWidth = screenWidth - 10; // Leave some margin
     const bodyHeight = 4; // Thin line
     //
-    let start = timeToMinutes(upperBoundTime);
-    let end = timeToMinutes(lowerBoundTime);
-    let current = getCurrentTimeMinutes();
+    const start = timeToMinutes(upperBoundTime);
+    const end = timeToMinutes(lowerBoundTime);
+    const current = getCurrentTimeMinutes();
     const initialY = calculateCurrentTimeYPosition(start, end, current);
 
     const currentTimeBody = Bodies.rectangle(
@@ -73,8 +73,8 @@ const CurrentTime = ({
       {
         isStatic: true, // Static so it doesn't fall due to gravity
         render: {
-          fillStyle: "#fef3c6", 
-          strokeStyle: "#fef3c6",
+          fillStyle: "#fff7e0",
+          strokeStyle: "#fff7e0",
           lineWidth: 1,
         },
         label: "currentTime",
@@ -112,6 +112,9 @@ const CurrentTime = ({
     }, 1000); // Update every second
     // a cleanup function that React will run when the component unmounts. clear the interval to prevent memory leaks.
     return () => clearInterval(intervalId);
+  }, []);
+  useEffect(() => {
+    console.log(scene);
   }, []);
 
   return (

@@ -5,15 +5,11 @@ import { Query, World, Bodies, Body } from "matter-js";
 import { MatterContext } from "./context/MatterContext";
 import { ActiveTaskContext } from "./context/ActiveTaskContext";
 import { SingleTaskCardActiveContext } from "./context/SingleTaskCardActiveContext";
-import {
-  Task,
-  MatterContextType,
-  SingleTaskCardActiveContextType,
-  ActiveTaskContextType,
-} from "@/utils/types";
-import { getShapeColor } from "@/utils/helper";
+import { TaskOnDeleteContext } from "./context/TaskOnDeleteContext";
+import { Task, MatterContextType } from "@/utils/types";
+import { getTaskObjectOptions } from "@/utils/helper";
 /*
-the task object(polygon)
+the task object(polygons)
 */
 interface TaskObjectProps {
   task: Task;
@@ -22,21 +18,14 @@ const TaskObject = ({ task }: TaskObjectProps) => {
   // engine.world and the canvas div for manipulating body
   const { world, scene } = useContext(MatterContext) as MatterContextType;
   // current active(selected) task and setter. can set current task as active if long pressed
-  const { activeTask, setActiveTask } = useContext(
-    ActiveTaskContext
-  ) as ActiveTaskContextType;
-  const { showSingleTaskCard, setShowSingleTaskCard } = useContext(
-    SingleTaskCardActiveContext
-  ) as SingleTaskCardActiveContextType;
+  const activeTaskController = useContext(ActiveTaskContext);
+  const showSingleTaskCardController = useContext(SingleTaskCardActiveContext);
 
   // body / task info:
   // hold the created body in canvas
   const bodyRef = useRef<Body | null>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [angle, setAngle] = useState(0);
-  // choose shape(temp)
-  const shapes = ["Ball", "Pentagon", "Rectangle", "Triangle"];
-  const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
+  // const [position, setPosition] = useState({ x: 0, y: 0 });
+  // const [angle, setAngle] = useState(0);
 
   // -----------long press-----------
   // Long press detection refs
@@ -46,52 +35,71 @@ const TaskObject = ({ task }: TaskObjectProps) => {
   const pressStartTimeRef = useRef(0);
   const LONG_PRESS_DURATION = 800; // 800ms for long press
 
+  // boundary detection
+  const isOutOfBoundsRef = useRef<boolean>(false);
+  const taskOnDeleteController = useContext(TaskOnDeleteContext);
+  const positionCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // -----------manipulate popup window-----------
 
   useEffect(() => {
     if (!world) return;
-    // TODO: replace this with getting current time line position, then only add to spces below the current time line
-    // will be good for later delete handler to function properly
-    const startX = Math.random() * (window.innerWidth - 200) + 100;
-    const startY = Math.random() * 200 + 100;
+    // ender related values (style, position...)
+    const rect = scene.getBoundingClientRect();
+    const screenWidth = rect.width || window.innerWidth;
+    const screenHeight = rect.height || window.innerHeight;
+    const taskOptions = getTaskObjectOptions(task, screenWidth, screenHeight);
+    const startX = Math.random() * Math.max(window.innerWidth - 200, 0) + 50;
+    const startY = Math.random() * Math.max(window.innerHeight - 200, 0) + 50;
 
     // Create body based on shape type
     let body: Body;
-    const options = {
-      restitution: 0.6,
-      friction: 0.3,
-      frictionAir: 0.01,
-      density: 0.8 + Math.random() * 0.4,
-      render: {
-        fillStyle: getShapeColor(shapeType),
-        strokeStyle: "#000",
-        lineWidth: 1,
-      },
-      // simulate the taskId from DB
-      // fetch detailed task info with this id, either from radis or dp api
-      label: `${task.taskId ?? Math.floor(Math.random() * 10000)}`,
+    const matterOptions = {
+      restitution: taskOptions.restitution,
+      friction: taskOptions.friction,
+      frictionAir: taskOptions.frictionAir,
+      density: taskOptions.density,
+      render: taskOptions.render,
+      label: `${task?.taskId ?? Math.floor(Math.random() * 10000)}`,
     };
-    switch (shapeType) {
+    switch (taskOptions.shapeType) {
       case "Ball":
-        const radius = 15 + Math.random() * 75; // Variable size
-        body = Bodies.circle(startX, startY, radius, options);
+        body = Bodies.circle(
+          startX,
+          startY,
+          taskOptions.size.radius || 30,
+          matterOptions
+        );
         break;
       case "Triangle":
-        const width = 30 + Math.random() * 75;
-        const height = 30 + Math.random() * 75;
-        body = Bodies.polygon(startX, startY, width, height, options);
+        body = Bodies.polygon(
+          startX,
+          startY,
+          3,
+          taskOptions.size.radius || 30,
+          matterOptions
+        );
         break;
       case "Rectangle":
-        const widthI = 30 + Math.random() * 75;
-        const heightI = 30 + Math.random() * 75;
-        body = Bodies.rectangle(startX, startY, widthI, heightI, options);
+        body = Bodies.rectangle(
+          startX,
+          startY,
+          taskOptions.size.width || 60,
+          taskOptions.size.height || 60,
+          matterOptions
+        );
         break;
       case "Pentagon":
-        const size = 25 + Math.random() * 75;
-        body = Bodies.polygon(startX, startY, 5, size, options);
+        body = Bodies.polygon(
+          startX,
+          startY,
+          5,
+          taskOptions.size.radius || 30,
+          matterOptions
+        );
         break;
       default:
-        body = Bodies.circle(startX, startY, 30, options);
+        body = Bodies.circle(startX, startY, 30, matterOptions);
     }
     // apply initial force(random)
     const horizontalForce = (Math.random() - 0.5) * 0.03;
@@ -105,6 +113,45 @@ const TaskObject = ({ task }: TaskObjectProps) => {
     bodyRef.current = body;
     World.add(world, body);
 
+    // Position monitoring for boundary detection
+    const checkBoundary = () => {
+      if (!bodyRef.current || !scene) return;
+
+      const body = bodyRef.current;
+      const rect = scene.getBoundingClientRect();
+      const { x, y } = body.position;
+
+      // Check if body is out of bounds with some margin
+      const margin = 50; // Allow some margin before considering it out of bounds
+      const isOutOfBounds =
+        x < -margin ||
+        x > rect.width + margin ||
+        y < -margin ||
+        y > rect.height + margin;
+
+      if (isOutOfBounds && !isOutOfBoundsRef.current) {
+        // Just went out of bounds
+        isOutOfBoundsRef.current = true;
+        taskOnDeleteController?.setTaskOnDelete(task);
+
+        // Optional: Apply some visual feedback
+        if (body.render) {
+          body.render.opacity = 0.5;
+        }
+      } else if (!isOutOfBounds && isOutOfBoundsRef.current) {
+        // Came back in bounds
+        isOutOfBoundsRef.current = false;
+        taskOnDeleteController?.setTaskOnDelete(null);
+
+        // Restore opacity
+        if (body.render) {
+          body.render.opacity = 1;
+        }
+      }
+    };
+    // Start position monitoring
+    positionCheckIntervalRef.current = setInterval(checkBoundary, 100);
+
     // Update position and angle based on physics
     const updatePosition = () => {
       return;
@@ -113,6 +160,9 @@ const TaskObject = ({ task }: TaskObjectProps) => {
 
     return () => {
       clearInterval(interval);
+      if (positionCheckIntervalRef.current) {
+        clearInterval(positionCheckIntervalRef.current);
+      }
       if (bodyRef.current && world) {
         World.remove(world, bodyRef.current);
       }
@@ -135,19 +185,12 @@ const TaskObject = ({ task }: TaskObjectProps) => {
       if (bodiesUnderPoint.length > 0 && bodiesUnderPoint.includes(body)) {
         isPressedRef.current = true;
         pressStartTimeRef.current = Date.now();
-
         // start long press timer:
         longPressTimerRef.current = setTimeout(() => {
           if (isPressedRef.current) {
-            // FIXME: the first added(default task) don't have these properties(handle long press...)
-            setActiveTask(task);
-            setShowSingleTaskCard(true);
+            activeTaskController?.setActiveTask(task);
+            showSingleTaskCardController?.setShowSingleTaskCard(true);
 
-            // replace the console log with handlePopupInfoWindow
-            // pass a setter from Dayview(or use another context called popup window context)
-            // set condition to true to show that window
-            // also need to set 'currentSelectedTask', so we'll know:
-            //  which task should be shown or modified(excluded from MVP)
             console.log(
               `long press detected on:${body.label}\nx position:${body.position.x}\ny position:${body.position.y}`
             );
@@ -236,3 +279,5 @@ const TaskObject = ({ task }: TaskObjectProps) => {
 };
 
 export default TaskObject;
+// TODO: replace this with getting current time line position, then only add to spces below the current time line
+// will be good for later delete handler to function properly

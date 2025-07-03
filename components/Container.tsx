@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   Engine,
   Render,
@@ -16,8 +16,7 @@ import TaskObject from "./TaskObject";
 import CurrentTime from "./CurrentTime";
 import { Task, MatterContextType } from "@/utils/types";
 /*
-the page component
-renderer goes here
+the client component where renderer starts here
 */
 interface ContainerProps {
   tasks: Array<Task>;
@@ -111,9 +110,10 @@ const Container = ({ tasks }: ContainerProps) => {
       Engine.clear(engine.current);
     };
   }, []);
-  useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
+
+  // useEffect(() => {
+  //   console.log(tasks);
+  // }, [tasks]);
 
   return (
     <>
